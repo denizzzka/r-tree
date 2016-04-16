@@ -32,7 +32,7 @@ class RTree(Node, bool writable)
 
         addLeafNode(leaf);
 
-        return payloadId;        
+        return payloadId;
     }
 
     /// Useful with external payload storage
@@ -42,7 +42,7 @@ class RTree(Node, bool writable)
 
         addLeafNode(leaf);
 
-        return payload;        
+        return payload;
     }
 
     private auto addLeafNode(Node* leaf) @system
@@ -51,7 +51,7 @@ class RTree(Node, bool writable)
 
         auto place = selectLeafPlace(leaf.boundary);
 
-        debug(rtptrs) writeln("Add leaf ", leaf, " to node ", place);     
+        debug(rtptrs) writeln("Add leaf ", leaf, " to node ", place);
 
         place.assignChild(leaf); // unconditional add a leaf
         correct(place); // correction of the tree
@@ -64,14 +64,14 @@ class RTree(Node, bool writable)
         for(auto currDepth = 0; currDepth < depth; currDepth++)
         {
             debug assert( !curr.isLeafNode );
-            
+
             // search for min area of child nodes
             float minArea = float.infinity;
             size_t minKey;
             foreach(i, c; curr.children)
             {
                 auto area = c.boundary.expand(newItemBoundary).volume();
-                
+
                 if( area < minArea )
                 {
                     minArea = area;
@@ -104,8 +104,8 @@ class RTree(Node, bool writable)
                 if( node.parent is null ) // for root split it is need a new root node
                 {
                     Node* old_root = new Node;
-                    *old_root = root;
-                    root = Node(Box());
+                    //*old_root = root; // FIXME: !!!!
+                    //root = Node.init;
                     root.assignChild(old_root);
                     depth++;
 
@@ -131,6 +131,143 @@ class RTree(Node, bool writable)
 
         debug(rtptrs) writeln( "End of correction" );
     }
+
+    /// Brute force method
+    private Node* splitNode(Node* n)
+    in
+    {
+        debug assert(!n.isLeafNode);
+        assert( n.children.length >= 2 );
+    }
+    body
+    {
+        debug(rtptrs)
+        {
+            writeln( "Begin splitting node ", n, " by brute force" );
+            stdout.flush();
+        }
+
+        size_t children_num = n.children.length;
+
+        struct Metrics
+        {
+            auto overlapping_perimeter = real.max; // TODO: why real?
+            auto boundary_perimeter = real.max;
+        }
+
+        import core.bitop: bt;
+        alias BinKey = ulong;
+        Metrics metrics;
+        BinKey minMetricsKey;
+
+        // loop through all combinations of nodes (combinatorial method)
+        auto capacity = num2bits!BinKey(children_num);
+        for(BinKey i = 1; i < (capacity + 1) / 2; i++)
+        {
+            import std.typecons: Nullable;
+            import rtree.box_extensions;
+
+            Nullable!Box b1;
+            Nullable!Box b2;
+
+            static void circumscribe(ref Nullable!Box box, inout Box add) pure
+            {
+                if( box.isNull )
+                    box = add;
+                else
+                    box = box.expand(add);
+            }
+
+            // division into two unique combinations of child nodes
+            for(size_t bit_num = 0; bit_num < children_num; bit_num++)
+            {
+                auto boundary = n.children[bit_num].boundary;
+
+                if(bt(cast( size_t* ) &i, bit_num) == 0)
+                    circumscribe(b1, boundary);
+                else
+                    circumscribe(b2, boundary);
+            }
+
+            // search for combination with minimum metrics
+            Metrics m;
+
+            if(b1.isOverlappedBy(b2))
+                m.overlapping_perimeter = b1.getOverlappingBox(b2).getPerimeter;
+            else
+                m.overlapping_perimeter = 0;
+
+            if(metrics.overlapping_perimeter)
+            {
+                if(m.overlapping_perimeter < metrics.overlapping_perimeter)
+                {
+                    metrics = m;
+                    minMetricsKey = i;
+                }
+            }
+            else
+            {
+                m.boundary_perimeter = b1.getPerimeter + b2.getPerimeter;
+
+                if( m.boundary_perimeter < metrics.boundary_perimeter )
+                {
+                    metrics = m;
+                    minMetricsKey = i;
+                }
+            }
+        }
+
+        // split by places specified by bits of key
+        auto oldChildren = n.children.dup;
+        n.children.destroy;
+
+        auto newNode = new Node;
+
+        for(auto i = 0; i < children_num; i++)
+        {
+            auto c = oldChildren[i];
+
+            if(bt(cast(size_t*) &minMetricsKey, i) == 0)
+                n.assignChild(c);
+            else
+                newNode.assignChild(c);
+        }
+
+        debug(rtptrs)
+        {
+            writeln("Split node ", n, " ", n.children, ", new ", newNode, " ", newNode.children);
+            stdout.flush();
+        }
+
+        return newNode;
+    }
+}
+
+/// converts number to number of bits
+T num2bits(T, N)(N n) pure
+{
+    {
+        auto max_n = n + 1;
+        auto bytes_used = max_n / 8;
+
+        if(max_n % 8 > 0)
+            bytes_used++;
+
+        import std.exception: enforce;
+
+        enforce(bytes_used <= T.sizeof);
+    }
+
+    T res;
+
+    for(N i = 0; i < n; i++)
+        res = cast(T) (res << 1 | 1);
+
+    return res;
+}
+unittest
+{
+    assert(num2bits!ubyte( 3 ) == 0b_0000_0111);
 }
 
 @system struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
@@ -140,7 +277,7 @@ class RTree(Node, bool writable)
     private RAMNode* parent;
     private Box boundary;
     private static Payload[] payloads;
-    debug private const bool isLeafNode = true;
+    debug private const bool isLeafNode = false;
 
     union
     {
@@ -160,13 +297,7 @@ class RTree(Node, bool writable)
     {
         this.boundary = boundary;
         this.payloadId = payloadId;
-    }
-
-    /// Empty node
-    this(Box boundary)
-    {
-        this.boundary = boundary;
-        isLeafNode = false;
+        isLeafNode = true;
     }
 
     Box getBoundary() const
