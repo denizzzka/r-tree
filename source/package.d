@@ -35,7 +35,7 @@ class RTree(Node, bool writable)
         return payloadId;
     }
 
-    /// Useful with external payload storage
+    /// Useful for external payload storage
     Payload* addObject(Payload)(in Box boundary, Payload* payloadPtr) @system
     {
         Node* leaf = new Node(boundary, payloadPtr);
@@ -192,7 +192,7 @@ class RTree(Node, bool writable)
             // search for combination with minimum metrics
             Metrics m;
 
-            if(b1.isOverlappedBy(b2)) // TODO: remove isOverlappedBy, it can be done by intersection & .empty() check
+            if(b1.isOverlappedBy(b2))
                 m.overlapping_perimeter = b1.intersection(b2).getPerimeter;
             else
                 m.overlapping_perimeter = 0;
@@ -244,7 +244,7 @@ class RTree(Node, bool writable)
 }
 
 /// converts number to number of bits
-T num2bits(T, N)(N n) pure
+private T num2bits(T, N)(N n) pure @safe
 {
     {
         auto max_n = n + 1;
