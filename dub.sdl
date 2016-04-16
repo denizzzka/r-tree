@@ -1,0 +1,5 @@
+name "r-tree"
+description "R-tree data structure"
+copyright "Copyright © 2016, Denis Feklushkin"
+authors "Denis Feklushkin"
+targetType "sourceLibrary"
