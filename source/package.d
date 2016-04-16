@@ -3,12 +3,12 @@ module rtree;
 import std.traits;
 debug import std.stdio;
 
-class RTree(Node, bool writable)
+class RTree(Node, bool isWritable)
 {
     private Node root;
     private ubyte depth = 0;
 
-    static if(writable)
+    static if(isWritable)
     {
         immutable size_t maxChildren;
         immutable size_t maxLeafChildren;
@@ -25,6 +25,7 @@ class RTree(Node, bool writable)
 
     alias Box = ReturnType!(Node.getBoundary);
 
+    static if(isWritable)
     auto addObject(Payload)(in Box boundary, Payload payload) @system
     {
         auto payloadId = Node.savePayload(payload);
@@ -36,6 +37,7 @@ class RTree(Node, bool writable)
     }
 
     /// Useful for external payload storage
+    static if(isWritable)
     Payload* addObject(Payload)(in Box boundary, Payload* payloadPtr) @system
     {
         Node* leaf = new Node(boundary, payloadPtr);
@@ -104,8 +106,8 @@ class RTree(Node, bool writable)
                 if( node.parent is null ) // for root split it is need a new root node
                 {
                     Node* old_root = new Node;
-                    //*old_root = root; // FIXME: !!!!
-                    //root = Node.init;
+                    *old_root = root;
+                    root = Node.init;
                     root.assignChild(old_root);
                     depth++;
 
@@ -276,7 +278,7 @@ unittest
 
     private RAMNode* parent;
     private Box boundary;
-    private static Payload[] payloads;
+    private static Payload[] payloads; // TODO: replace by SList
     debug private const bool isLeafNode = false;
 
     union
@@ -323,7 +325,16 @@ unittest
 {
     import gfm.math.box;
 
-    alias Node = RAMNode!(box2i, ubyte);
+    alias NNode = RAMNode!(box2i, ubyte);
 
-    auto writable = new RTree!(Node, true)(2, 2);
+    auto writable = new RTree!(NNode, true)(2, 2);
+
+    for(int y = 1; y < 4; y++)
+    {
+        for(int x = 1; x < 4; x++)
+        {
+            auto boundary = box2i(x, y, x+1, y+1);
+            writable.addObject(boundary, cast(ubyte) (x * y) /*payload*/);
+        }
+    }
 }
