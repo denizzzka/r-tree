@@ -120,7 +120,7 @@ class RTree(Node, bool writable)
                 Box boundary = node.children[0].boundary;
 
                 foreach( c; node.children[1..$] )
-                    boundary.addCircumscribe( c.boundary );
+                    boundary = boundary.expand(c.boundary);
 
                 node.boundary = boundary;
             }
@@ -192,8 +192,8 @@ class RTree(Node, bool writable)
             // search for combination with minimum metrics
             Metrics m;
 
-            if(b1.isOverlappedBy(b2))
-                m.overlapping_perimeter = b1.getOverlappingBox(b2).getPerimeter;
+            if(b1.isOverlappedBy(b2)) // TODO: remove isOverlappedBy, it can be done by intersection & .empty() check
+                m.overlapping_perimeter = b1.intersection(b2).getPerimeter;
             else
                 m.overlapping_perimeter = 0;
 
