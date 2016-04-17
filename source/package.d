@@ -334,7 +334,7 @@ unittest
         for(int x = 1; x < 4; x++)
         {
             auto boundary = box2i(x, y, x+1, y+1);
-            writable.addObject(boundary, cast(ubyte) (x * y) /*payload*/);
+            writable.addObject(boundary, cast(ubyte) (10 * x + y) /*payload*/);
         }
     }
 }
