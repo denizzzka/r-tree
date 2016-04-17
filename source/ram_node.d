@@ -2,16 +2,16 @@ module rtree.ram_node;
 
 struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 {
-    private RAMNode* parent;
-    private Box boundary;
-    private static Payload[] payloads; // TODO: replace by SList
+    RAMNode* parent;
+    Box boundary;
+    static Payload[] payloads; // TODO: replace by SList
     debug package bool isLeafNode = false;
 
     this(this){}
 
     union
     {
-        private RAMNode*[] children;
+        RAMNode*[] children;
         size_t payloadId;
     }
 
