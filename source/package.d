@@ -23,13 +23,14 @@ class RTree(Node, bool isWritable)
         }
     }
 
-    alias Box = ReturnType!(Node.getBoundary);
+    import gfm.math.box;
+    alias Box = box2i;
 
     static if(isWritable)
     auto addObject(Payload)(in Box boundary, Payload payload) @system
     {
-        auto payloadId = Node.savePayload(payload);
-        Node* leaf = new Node(boundary, payloadId);
+        size_t payloadId; // = Node.savePayload(payload);
+        Node* leaf = new Node; //(boundary, payloadId);
 
         addLeafNode(leaf);
 
@@ -49,13 +50,11 @@ class RTree(Node, bool isWritable)
 
     private auto addLeafNode(Node* leaf) @system
     {
-        debug assert(leaf.isLeafNode);
-
-        auto place = selectLeafPlace(leaf.boundary);
+        auto bbb = box2i();
+        auto place = selectLeafPlace(bbb);
 
         debug(rtptrs) writeln("Add leaf ", leaf, " to node ", place);
 
-        place.assignChild(leaf); // unconditional add a leaf
         correct(place); // correction of the tree
     }
 
@@ -65,23 +64,8 @@ class RTree(Node, bool isWritable)
 
         for(auto currDepth = 0; currDepth < depth; currDepth++)
         {
-            debug assert( !curr.isLeafNode );
-
-            // search for min area of child nodes
             float minArea = float.infinity;
             size_t minKey;
-            foreach(i, c; curr.children)
-            {
-                auto area = c.boundary.expand(newItemBoundary).volume();
-
-                if( area < minArea )
-                {
-                    minArea = area;
-                    minKey = i;
-                }
-            }
-
-            curr = curr.children[minKey];
         }
 
         return curr;
@@ -96,39 +80,16 @@ class RTree(Node, bool isWritable)
 
         while(node)
         {
-            debug(rtptrs) writeln("Correcting node ", node);
-
-            debug assert(node.children[0].isLeafNode == leafs_level);
-
-            if( (leafs_level && node.children.length > maxLeafChildren) // need split on leafs level?
-                || (!leafs_level && node.children.length > maxChildren) ) // need split of node?
             {
-                if( node.parent is null ) // for root split it is need a new root node
                 {
                     Node* old_root = new Node;
                     *old_root = root;
                     root = Node.init;
-                    root.assignChild(old_root);
+                    //~ root.assignChild(old_root);
                     depth++;
-
-                    debug(rtptrs) writeln("Added new root ", root, ", depth (without leafs) now is: ", depth);
+                    //assert(0);
                 }
-
-                Node* n = splitNode( node );
-                node.parent.assignChild( n );
             }
-            else // just recalculate boundary
-            {
-                Box boundary = node.children[0].boundary;
-
-                foreach( c; node.children[1..$] )
-                    boundary = boundary.expand(c.boundary);
-
-                node.boundary = boundary;
-            }
-
-            node = node.parent;
-            leafs_level = false;
         }
 
         debug(rtptrs) writeln( "End of correction" );
@@ -136,20 +97,8 @@ class RTree(Node, bool isWritable)
 
     /// Brute force method
     private Node* splitNode(Node* n)
-    in
     {
-        debug assert(!n.isLeafNode);
-        assert( n.children.length >= 2 );
-    }
-    body
-    {
-        debug(rtptrs)
-        {
-            writeln( "Begin splitting node ", n, " by brute force" );
-            stdout.flush();
-        }
-
-        size_t children_num = n.children.length;
+        size_t children_num;// = n.children.length;
 
         struct Metrics
         {
@@ -178,17 +127,6 @@ class RTree(Node, bool isWritable)
                     box = add;
                 else
                     box = box.expand(add);
-            }
-
-            // division into two unique combinations of child nodes
-            for(size_t bit_num = 0; bit_num < children_num; bit_num++)
-            {
-                auto boundary = n.children[bit_num].boundary;
-
-                if(bt(cast( size_t* ) &i, bit_num) == 0)
-                    circumscribe(b1, boundary);
-                else
-                    circumscribe(b2, boundary);
             }
 
             // search for combination with minimum metrics
@@ -220,26 +158,10 @@ class RTree(Node, bool isWritable)
         }
 
         // split by places specified by bits of key
-        auto oldChildren = n.children.dup;
-        n.children.destroy;
+        //auto oldChildren = n.children.dup;
+        //n.children.destroy;
 
         auto newNode = new Node;
-
-        for(auto i = 0; i < children_num; i++)
-        {
-            auto c = oldChildren[i];
-
-            if(bt(cast(size_t*) &minMetricsKey, i) == 0)
-                n.assignChild(c);
-            else
-                newNode.assignChild(c);
-        }
-
-        debug(rtptrs)
-        {
-            writeln("Split node ", n, " ", n.children, ", new ", newNode, " ", newNode.children);
-            stdout.flush();
-        }
 
         return newNode;
     }
@@ -274,51 +196,7 @@ unittest
 
 @system struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 {
-    import rtree.box_extensions;
-
-    private RAMNode* parent;
-    private Box boundary;
-    private static Payload[] payloads; // TODO: replace by SList
-    debug private const bool isLeafNode = false;
-
-    union
-    {
-        private RAMNode*[] children;
-        size_t payloadId;
-    }
-
-    static size_t savePayload(Payload payload)
-    {
-        payloads ~= payload;
-
-        return payloads.length - 1;
-    }
-
-    /// Leaf node
-    this(in Box boundary, size_t payloadId)
-    {
-        this.boundary = boundary;
-        this.payloadId = payloadId;
-        isLeafNode = true;
-    }
-
-    Box getBoundary() const
-    {
-        return boundary;
-    }
-
-    void assignChild(RAMNode* child)
-    {
-        debug assert(!isLeafNode);
-
-        if(children.length)
-            boundary = boundary.expand(child.boundary);
-        else
-            boundary = child.boundary;
-
-        children ~= child;
-        child.parent = &this;
-    }
+    const bool isLeafNode = false;
 }
 
 unittest
