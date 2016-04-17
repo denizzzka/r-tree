@@ -24,7 +24,7 @@ class RTree(Node, bool isWritable)
         }
     }
 
-    alias Box = ReturnType!(Node.getBoundary);
+    alias Box = ReturnType!(Node.boundary);
     alias Payload = PointerTarget!(ReturnType!(Node.getPayload));
 
     static if(isWritable)
@@ -53,7 +53,7 @@ class RTree(Node, bool isWritable)
     {
         debug assert(leaf.isLeafNode);
 
-        auto place = selectLeafPlace(leaf.getBoundary);
+        auto place = selectLeafPlace(leaf.boundary);
 
         debug(rtptrs) writeln("Add leaf ", leaf, " to node ", place);
 
@@ -293,7 +293,7 @@ class RTree(Node, bool isWritable)
         }
     }
 
-    Box getBoundary() const
+    Box boundary() const
     {
         assert(root.children.length);
 
@@ -321,7 +321,7 @@ class RTree(Node, bool isWritable)
             debug assert(!curr.isLeafNode);
 
             foreach(i, c; curr.children)
-                if(c.getBoundary.isOverlappedBy(boundary))
+                if(c.boundary.isOverlappedBy(boundary))
                     res ~= search(boundary, c, currDepth+1);
         }
 
@@ -386,7 +386,7 @@ unittest
     // assert(nodes == 13);
     assert(leafBlocksNum == 6);
 
-    assert(writable.root.getBoundary == BBox(1, 1, 4, 4));
+    assert(writable.root.boundary == BBox(1, 1, 4, 4));
 
     auto search1 = BBox(2, 2, 3, 3);
     auto search2 = BBox(2.1, 2.1, 2.9, 2.9);
