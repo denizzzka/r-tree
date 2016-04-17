@@ -1,5 +1,6 @@
 module rtree;
 
+import rtree.box_extensions;
 import std.traits;
 debug import std.stdio;
 
@@ -24,9 +25,10 @@ class RTree(Node, bool isWritable)
     }
 
     alias Box = ReturnType!(Node.getBoundary);
+    alias Payload = PointerTarget!(ReturnType!(Node.getPayload));
 
     static if(isWritable)
-    auto addObject(Payload)(in Box boundary, Payload payload) @system
+    auto addObject(in Box boundary, Payload payload) @system
     {
         auto payloadId = Node.savePayload(payload);
         Node* leaf = new Node(boundary, payloadId);
@@ -38,7 +40,7 @@ class RTree(Node, bool isWritable)
 
     /// Useful for external payload storage
     static if(isWritable)
-    Payload* addObject(Payload)(in Box boundary, Payload* payloadPtr) @system
+    PayloadPtr* addObject(PayloadPtr)(in Box boundary, PayloadPtr* payloadPtr) @system
     {
         Node* leaf = new Node(boundary, payloadPtr);
 
@@ -221,7 +223,7 @@ class RTree(Node, bool isWritable)
 
         // split by places specified by bits of key
         auto oldChildren = n.children.dup;
-        n.children.destroy;
+        delete n.children;
 
         auto newNode = new Node;
 
@@ -242,6 +244,88 @@ class RTree(Node, bool isWritable)
         }
 
         return newNode;
+    }
+
+    void statistic(
+        ref size_t nodesNum,
+        ref size_t leafsNum,
+        ref size_t leafBlocksNum,
+        Node* curr = null,
+        size_t currDepth = 0
+    ) pure
+    {
+        if( !curr )
+        {
+            curr = &root;
+            nodesNum = 1;
+        }
+
+        if( currDepth == depth )
+        {
+            leafBlocksNum++;
+            leafsNum += curr.children.length;
+        }
+        else
+        {
+            nodesNum += curr.children.length;
+
+            foreach( i, c; curr.children )
+                statistic( nodesNum, leafsNum, leafBlocksNum, c, currDepth+1 );
+        }
+    }
+
+    debug void showBranch(Node* from, uint depth = 0)
+    {
+        writeln("Depth: ", depth);
+
+        if( depth > this.depth )
+        {
+            writeln("Leaf: ", from, " parent: ", from.parent, " value: ", from.getPayload);
+        }
+        else
+        {
+            writeln("Node: ", from, " parent: ", from.parent, " children: ", from.children);
+
+            foreach( i, c; from.children )
+            {
+                showBranch(c, depth+1);
+            }
+        }
+    }
+
+    Box getBoundary() const
+    {
+        assert(root.children.length);
+
+        return root.boundary;
+    }
+
+    Payload*[] search(in Box boundary)
+    {
+        Node* r = &root;
+        return search(boundary, r);
+    }
+
+    private Payload*[] search(in Box boundary, Node* curr, size_t currDepth = 0)
+    {
+        Payload*[] res;
+
+        if( currDepth > depth )
+        {
+            debug assert(curr.isLeafNode);
+
+            res ~= curr.getPayload;
+        }
+        else
+        {
+            debug assert(!curr.isLeafNode);
+
+            foreach(i, c; curr.children)
+                if(c.getBoundary.isOverlappedBy(boundary))
+                    res ~= search(boundary, c, currDepth+1);
+        }
+
+        return res;
     }
 }
 
@@ -274,8 +358,6 @@ unittest
 
 @system struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 {
-    import rtree.box_extensions;
-
     private RAMNode* parent;
     private Box boundary;
     private static Payload[] payloads; // TODO: replace by SList
@@ -294,6 +376,13 @@ unittest
         payloads ~= payload;
 
         return payloads.length - 1;
+    }
+
+    Payload* getPayload()
+    {
+        debug assert(isLeafNode);
+
+        return &payloads[payloadId];
     }
 
     /// Leaf node
@@ -327,16 +416,36 @@ unittest
 {
     import gfm.math.box;
 
-    alias NNode = RAMNode!(box2i, ubyte);
+    alias TestType = float;
+    alias BBox = Box!(TestType, 2);
 
-    auto writable = new RTree!(NNode, true)(2, 2);
+    alias Node = RAMNode!(BBox, TestType);
 
-    for(int y = 1; y < 4; y++)
+    auto writable = new RTree!(Node, true)(2, 2);
+
+    for(TestType y = 1; y < 4; y++)
     {
-        for(int x = 1; x < 4; x++)
+        for(TestType x = 1; x < 4; x++)
         {
-            auto boundary = box2i(x, y, x+1, y+1);
+            auto boundary = BBox(x, y, x+1, y+1);
             writable.addObject(boundary, cast(ubyte) (10 * x + y) /*payload*/);
         }
     }
+
+    debug(rtree) writable.showBranch(&writable.root);
+
+    size_t nodes, leafs, leafBlocksNum;
+    writable.statistic(nodes, leafs, leafBlocksNum);
+
+    assert(leafs == 9);
+    // assert(nodes == 13);
+    assert(leafBlocksNum == 6);
+
+    assert(writable.root.getBoundary == BBox(1, 1, 4, 4));
+
+    auto search1 = BBox(2, 2, 3, 3);
+    auto search2 = BBox(2.1, 2.1, 2.9, 2.9);
+
+    assert(writable.search( search1 ).length == 9);
+    assert(writable.search( search2 ).length == 1);
 }
