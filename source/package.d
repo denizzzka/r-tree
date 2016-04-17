@@ -2,7 +2,6 @@ module rtree;
 
 import std.traits;
 debug import std.stdio;
-import gfm.math.box: box2i; // If place this import to top of file @disabled error is gone
 
 class RTree(Node, bool isWritable)
 {
@@ -24,6 +23,7 @@ class RTree(Node, bool isWritable)
         }
     }
 
+    import gfm.math.box: box2i; // If place this import to top of file @disabled error is gone
     alias Box = box2i;
 
     static if(isWritable)
