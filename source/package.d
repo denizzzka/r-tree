@@ -2,6 +2,7 @@ module rtree;
 
 import std.traits;
 debug import std.stdio;
+import gfm.math.box: box2i;
 
 class RTree(Node, bool isWritable)
 {
@@ -23,7 +24,7 @@ class RTree(Node, bool isWritable)
         }
     }
 
-    alias Box = ReturnType!(Node.getBoundary);
+    alias Box = box2i;
 
     static if(isWritable)
     auto addObject(Payload)(in Box boundary, Payload payload) @system
@@ -279,7 +280,7 @@ unittest
     private RAMNode* parent;
     private Box boundary;
     private static Payload[] payloads; // TODO: replace by SList
-    debug private const bool isLeafNode = false;
+    debug private bool isLeafNode = false;
 
     union
     {
@@ -295,17 +296,17 @@ unittest
     }
 
     /// Leaf node
-    this(in Box boundary, size_t payloadId)
-    {
-        this.boundary = boundary;
-        this.payloadId = payloadId;
-        isLeafNode = true;
-    }
+    //~ this(in Box boundary, size_t payloadId)
+    //~ {
+        //~ this.boundary = boundary;
+        //~ this.payloadId = payloadId;
+        //~ isLeafNode = true;
+    //~ }
 
-    Box getBoundary() const
-    {
-        return boundary;
-    }
+    //~ Box getBoundary()
+    //~ {
+        //~ return boundary;
+    //~ }
 
     void assignChild(RAMNode* child)
     {
