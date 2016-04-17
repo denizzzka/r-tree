@@ -296,17 +296,17 @@ unittest
     }
 
     /// Leaf node
-    //~ this(in Box boundary, size_t payloadId)
-    //~ {
-        //~ this.boundary = boundary;
-        //~ this.payloadId = payloadId;
-        //~ isLeafNode = true;
-    //~ }
+    this(in Box boundary, size_t payloadId)
+    {
+        this.boundary = boundary;
+        this.payloadId = payloadId;
+        isLeafNode = true;
+    }
 
-    //~ Box getBoundary()
-    //~ {
-        //~ return boundary;
-    //~ }
+    Box getBoundary()
+    {
+        return boundary;
+    }
 
     void assignChild(RAMNode* child)
     {
