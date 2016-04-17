@@ -103,19 +103,19 @@ class RTree(Node, bool isWritable)
             if( (leafs_level && node.children.length > maxLeafChildren) // need split on leafs level?
                 || (!leafs_level && node.children.length > maxChildren) ) // need split of node?
             {
-                if( node.parent is null ) // for root split it is need a new root node
+                if(node.parent is null) // for root split it is need a new root node
                 {
-                    Node* old_root = new Node;
-                    *old_root = root;
+                    node = new Node;
+                    *node = root;
                     root = Node.init;
-                    root.assignChild(old_root);
+                    root.assignChild(node);
                     depth++;
 
                     debug(rtptrs) writeln("Added new root ", root, ", depth (without leafs) now is: ", depth);
                 }
 
-                Node* n = splitNode( node );
-                node.parent.assignChild( n );
+                Node* n = splitNode(node);
+                node.parent.assignChild(n);
             }
             else // just recalculate boundary
             {
