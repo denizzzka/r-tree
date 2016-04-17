@@ -279,7 +279,9 @@ unittest
     private RAMNode* parent;
     private Box boundary;
     private static Payload[] payloads; // TODO: replace by SList
-    debug private const bool isLeafNode = false;
+    debug private bool isLeafNode = false;
+
+    this(this){}
 
     union
     {
