@@ -4,7 +4,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 {
     RAMNode* parent;
     private Box _boundary;
-    static Payload[] payloads; // TODO: replace by SList
+    static Payload[] _payloads; // TODO: replace by SList
     debug package bool isLeafNode = false;
 
     this(this){}
@@ -17,16 +17,16 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 
     static size_t savePayload(Payload payload)
     {
-        payloads ~= payload;
+        _payloads ~= payload;
 
-        return payloads.length - 1;
+        return _payloads.length - 1; // TODO: replace by range
     }
 
     Payload* getPayload()
     {
         debug assert(isLeafNode);
 
-        return &payloads[payloadId];
+        return &_payloads[payloadId];
     }
 
     /// Leaf node
