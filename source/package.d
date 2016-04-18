@@ -9,7 +9,7 @@ class RTree(Node, bool isWritable)
 {
     static assert(isInputRange!(typeof(Node.children)));
 
-    private Node root;
+    package Node root;
     private ubyte depth = 0;
 
     static if(isWritable)
@@ -400,6 +400,7 @@ unittest
     size_t nodes, leafs, leafBlocksNum;
     writable.statistic(nodes, leafs, leafBlocksNum);
 
+    assert(Node.payloadsLength == 9);
     assert(leafs == 9);
     // assert(nodes == 13);
     assert(leafBlocksNum == 6);
