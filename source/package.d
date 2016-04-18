@@ -162,7 +162,6 @@ class RTree(Node, bool isWritable)
             auto boundary_perimeter = real.max;
         }
 
-        import core.bitop: bt;
         alias BinKey = ulong;
         Metrics metrics;
         BinKey minMetricsKey;
@@ -191,7 +190,7 @@ class RTree(Node, bool isWritable)
             {
                 auto boundary = range.front.boundary;
 
-                if(bt(cast( size_t* ) &i, bit_num) == 0)
+                if(bitIsNull(i, bit_num))
                     circumscribe(b1, boundary);
                 else
                     circumscribe(b2, boundary);
@@ -240,7 +239,7 @@ class RTree(Node, bool isWritable)
             {
                 auto c = range.front;
 
-                if(bt(cast(size_t*) &minMetricsKey, i) == 0)
+                if(bitIsNull(minMetricsKey, i))
                     n.assignChild(c);
                 else
                     newNode.assignChild(c);
@@ -366,6 +365,13 @@ private T num2bits(T, N)(N n) pure @safe
 unittest
 {
     assert(num2bits!ubyte( 3 ) == 0b_0000_0111);
+}
+
+private bool bitIsNull(T1, T2)(T1 number, T2 bitNumber) @trusted
+{
+    import core.bitop: bt;
+
+    return bt(cast(size_t*) &number, bitNumber) == 0;
 }
 
 unittest
