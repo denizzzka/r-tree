@@ -11,7 +11,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 
     union
     {
-        RAMNode*[] children;
+        RAMNode*[] _children;
         size_t payloadId;
     }
 
@@ -22,7 +22,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         return _payloads.length - 1; // TODO: replace by range
     }
 
-    Payload* getPayload()
+    Payload* getPayload() const
     {
         debug assert(isLeafNode);
 
@@ -51,12 +51,12 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
     {
         debug assert(!isLeafNode);
 
-        if(children.length)
+        if(_children.length)
             _boundary = _boundary.expand(child._boundary);
         else
             _boundary = child._boundary;
 
-        children ~= child;
+        _children ~= child;
         child.parent = &this;
     }
 }

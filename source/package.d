@@ -72,7 +72,7 @@ class RTree(Node, bool isWritable)
             // search for min area of child nodes
             float minArea = float.infinity;
             size_t minKey;
-            foreach(i, c; curr.children)
+            foreach(i, c; curr._children)
             {
                 auto area = c.boundary.expand(newItemBoundary).volume();
 
@@ -83,7 +83,7 @@ class RTree(Node, bool isWritable)
                 }
             }
 
-            curr = curr.children[minKey];
+            curr = curr._children[minKey];
         }
 
         return curr;
@@ -100,10 +100,10 @@ class RTree(Node, bool isWritable)
         {
             debug(rtptrs) writeln("Correcting node ", node);
 
-            debug assert(node.children[0].isLeafNode == leafs_level);
+            debug assert(node._children[0].isLeafNode == leafs_level);
 
-            if( (leafs_level && node.children.length > maxLeafChildren) // need split on leafs level?
-                || (!leafs_level && node.children.length > maxChildren) ) // need split of node?
+            if( (leafs_level && node._children.length > maxLeafChildren) // need split on leafs level?
+                || (!leafs_level && node._children.length > maxChildren) ) // need split of node?
             {
                 if(node.parent is null) // for root split it is need a new root node
                 {
@@ -121,9 +121,9 @@ class RTree(Node, bool isWritable)
             }
             else // just recalculate boundary
             {
-                Box boundary = node.children[0].boundary;
+                Box boundary = node._children[0].boundary;
 
-                foreach( c; node.children[1..$] )
+                foreach( c; node._children[1..$] )
                     boundary = boundary.expand(c.boundary);
 
                 node.boundary = boundary;
@@ -141,7 +141,7 @@ class RTree(Node, bool isWritable)
     in
     {
         debug assert(!n.isLeafNode);
-        assert( n.children.length >= 2 );
+        assert( n._children.length >= 2 );
     }
     body
     {
@@ -151,7 +151,7 @@ class RTree(Node, bool isWritable)
             stdout.flush();
         }
 
-        size_t children_num = n.children.length;
+        size_t _children_num = n._children.length;
 
         struct Metrics
         {
@@ -165,7 +165,7 @@ class RTree(Node, bool isWritable)
         BinKey minMetricsKey;
 
         // loop through all combinations of nodes (combinatorial method)
-        auto capacity = num2bits!BinKey(children_num);
+        auto capacity = num2bits!BinKey(_children_num);
         for(BinKey i = 1; i < (capacity + 1) / 2; i++)
         {
             import std.typecons: Nullable;
@@ -183,9 +183,9 @@ class RTree(Node, bool isWritable)
             }
 
             // division into two unique combinations of child nodes
-            for(size_t bit_num = 0; bit_num < children_num; bit_num++)
+            for(size_t bit_num = 0; bit_num < _children_num; bit_num++)
             {
-                auto boundary = n.children[bit_num].boundary;
+                auto boundary = n._children[bit_num].boundary;
 
                 if(bt(cast( size_t* ) &i, bit_num) == 0)
                     circumscribe(b1, boundary);
@@ -222,12 +222,12 @@ class RTree(Node, bool isWritable)
         }
 
         // split by places specified by bits of key
-        auto oldChildren = n.children.dup;
-        delete n.children;
+        auto oldChildren = n._children.dup;
+        delete n._children;
 
         auto newNode = new Node;
 
-        for(auto i = 0; i < children_num; i++)
+        for(auto i = 0; i < _children_num; i++)
         {
             auto c = oldChildren[i];
 
@@ -239,7 +239,7 @@ class RTree(Node, bool isWritable)
 
         debug(rtptrs)
         {
-            writeln("Split node ", n, " ", n.children, ", new ", newNode, " ", newNode.children);
+            writeln("Split node ", n, " ", n._children, ", new ", newNode, " ", newNode._children);
             stdout.flush();
         }
 
@@ -263,13 +263,13 @@ class RTree(Node, bool isWritable)
         if( currDepth == depth )
         {
             leafBlocksNum++;
-            leafsNum += curr.children.length;
+            leafsNum += curr._children.length;
         }
         else
         {
-            nodesNum += curr.children.length;
+            nodesNum += curr._children.length;
 
-            foreach( i, c; curr.children )
+            foreach( i, c; curr._children )
                 statistic( nodesNum, leafsNum, leafBlocksNum, c, currDepth+1 );
         }
     }
@@ -284,9 +284,9 @@ class RTree(Node, bool isWritable)
         }
         else
         {
-            writeln("Node: ", from, " parent: ", from.parent, " children: ", from.children);
+            writeln("Node: ", from, " parent: ", from.parent, " _children: ", from._children);
 
-            foreach( i, c; from.children )
+            foreach( i, c; from._children )
             {
                 showBranch(c, depth+1);
             }
@@ -295,7 +295,7 @@ class RTree(Node, bool isWritable)
 
     Box boundary() const
     {
-        assert(root.children.length);
+        assert(root._children.length);
 
         return root.boundary;
     }
@@ -320,7 +320,7 @@ class RTree(Node, bool isWritable)
         {
             debug assert(!curr.isLeafNode);
 
-            foreach(i, c; curr.children)
+            foreach(i, c; curr._children)
                 if(c.boundary.isOverlappedBy(boundary))
                     res ~= search(boundary, c, currDepth+1);
         }
