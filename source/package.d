@@ -102,8 +102,8 @@ class RTree(Node, bool isWritable)
 
             debug assert(node.children.front.isLeafNode == leafs_level);
 
-            if( (leafs_level && node._children.length > maxLeafChildren) // need split on leafs level?
-                || (!leafs_level && node._children.length > maxChildren) ) // need split of node?
+            if( (leafs_level && node.children.length > maxLeafChildren) // need split on leafs level?
+                || (!leafs_level && node.children.length > maxChildren) ) // need split of node?
             {
                 if(node.parent is null) // for root split it is need a new root node
                 {
