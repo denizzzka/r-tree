@@ -9,9 +9,9 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 
     this(this){}
 
-    union
+    private union
     {
-        private Children _children_;
+        Children _children_;
         size_t payloadId;
     }
 
@@ -46,10 +46,10 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
                 childrenStruct = c;
             }
 
-            @property auto front(){ return childrenStruct.childrenStorage[curr]; }
-            @property void popFront(){ ++curr; }
-            @property size_t length(){ return childrenStruct.childrenStorage.length; }
-            @property bool empty(){ return curr >= childrenStruct.childrenStorage.length; }
+            auto front(){ return childrenStruct.childrenStorage[curr]; }
+            void popFront(){ ++curr; }
+            size_t length(){ return childrenStruct.childrenStorage.length; }
+            bool empty(){ return curr >= childrenStruct.childrenStorage.length; }
         }
 
         debug string toString() const

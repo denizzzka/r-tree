@@ -151,7 +151,7 @@ class RTree(Node, bool isWritable)
             stdout.flush();
         }
 
-        size_t _children_num = n.children.length;
+        size_t _children_num = n.children.length();
 
         struct Metrics
         {
