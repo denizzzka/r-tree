@@ -20,11 +20,6 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         return _children_.childrenStorage;
     }
 
-    void clearChildren()
-    {
-        _children_.childrenStorage.length = 0;
-    }
-
     struct Children
     {
         private RAMNode*[] childrenStorage; // TODO: replace by SList

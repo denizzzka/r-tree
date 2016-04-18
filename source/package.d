@@ -223,7 +223,7 @@ class RTree(Node, bool isWritable)
 
         // split node by places specified by the bits of key
         auto oldChildren = n._children.dup;
-        n.clearChildren();
+        n.children.clear();
 
         Node* newNode = new Node;
 
