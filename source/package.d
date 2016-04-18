@@ -71,19 +71,19 @@ class RTree(Node, bool isWritable)
 
             // search for min area of child nodes
             float minArea = float.infinity;
-            size_t minKey;
-            foreach(i, c; curr._children)
+            Node* min;
+            foreach(c; curr.children)
             {
                 auto area = c.boundary.expand(newItemBoundary).volume();
 
                 if( area < minArea )
                 {
                     minArea = area;
-                    minKey = i;
+                    min = c;
                 }
             }
 
-            curr = curr._children[minKey];
+            curr = min;
         }
 
         return curr;
