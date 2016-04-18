@@ -141,7 +141,7 @@ class RTree(Node, bool isWritable)
     in
     {
         debug assert(!n.isLeafNode);
-        assert( n._children.length >= 2 );
+        assert( n.children.length >= 2 );
     }
     body
     {
@@ -151,7 +151,7 @@ class RTree(Node, bool isWritable)
             stdout.flush();
         }
 
-        size_t _children_num = n._children.length;
+        size_t _children_num = n.children.length;
 
         struct Metrics
         {
