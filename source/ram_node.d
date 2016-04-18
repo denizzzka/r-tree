@@ -11,8 +11,18 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 
     union
     {
-        RAMNode*[] _children;
+        RAMNode*[] _children_;
         size_t payloadId;
+    }
+
+    RAMNode*[] _children() // FIXME: temporary, remove it
+    {
+        return _children_;
+    }
+
+    void clearChidren()
+    {
+        delete _children_;
     }
 
     static size_t savePayload(Payload payload)
@@ -56,7 +66,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         else
             _boundary = child._boundary;
 
-        _children ~= child;
+        _children_ ~= child;
         child.parent = &this;
     }
 }

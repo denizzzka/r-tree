@@ -223,7 +223,7 @@ class RTree(Node, bool isWritable)
 
         // split node by places specified by the bits of key
         auto oldChildren = n._children.dup;
-        delete n._children;
+        n.clearChidren();
 
         Node* newNode = new Node;
 
@@ -293,7 +293,7 @@ class RTree(Node, bool isWritable)
         }
     }
 
-    Box boundary() const
+    Box boundary()
     {
         assert(root._children.length);
 
