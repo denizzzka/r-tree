@@ -221,20 +221,26 @@ class RTree(Node, bool isWritable)
             }
         }
 
-        // split node by places specified by the bits of key
-        auto oldChildren = n._children.dup;
-        n.children.clear();
-
         Node* newNode = new Node;
 
-        for(auto i = 0; i < _children_num; i++)
         {
-            auto c = oldChildren[i];
+            // split node by places specified by the bits of key
+            auto oldChildren = n.children;
+            n.children.clear();
 
-            if(bt(cast(size_t*) &minMetricsKey, i) == 0)
-                n.assignChild(c);
-            else
-                newNode.assignChild(c);
+            auto range = oldChildren.range();
+
+            for(auto i = 0; i < _children_num; i++)
+            {
+                auto c = range.front;
+
+                if(bt(cast(size_t*) &minMetricsKey, i) == 0)
+                    n.assignChild(c);
+                else
+                    newNode.assignChild(c);
+
+                range.popFront();
+            }
         }
 
         debug(rtptrs)
