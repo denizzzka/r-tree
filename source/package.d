@@ -221,11 +221,11 @@ class RTree(Node, bool isWritable)
             }
         }
 
-        // split by places specified by bits of key
+        // split node by places specified by the bits of key
         auto oldChildren = n._children.dup;
         delete n._children;
 
-        auto newNode = new Node;
+        Node* newNode = new Node;
 
         for(auto i = 0; i < _children_num; i++)
         {
@@ -254,13 +254,13 @@ class RTree(Node, bool isWritable)
         size_t currDepth = 0
     ) pure
     {
-        if( !curr )
+        if(!curr)
         {
             curr = &root;
             nodesNum = 1;
         }
 
-        if( currDepth == depth )
+        if(currDepth == depth)
         {
             leafBlocksNum++;
             leafsNum += curr._children.length;
@@ -269,7 +269,7 @@ class RTree(Node, bool isWritable)
         {
             nodesNum += curr._children.length;
 
-            foreach( i, c; curr._children )
+            foreach(c; curr._children)
                 statistic( nodesNum, leafsNum, leafBlocksNum, c, currDepth+1 );
         }
     }
@@ -278,7 +278,7 @@ class RTree(Node, bool isWritable)
     {
         writeln("Depth: ", depth);
 
-        if( depth > this.depth )
+        if(depth > this.depth)
         {
             writeln("Leaf: ", from, " parent: ", from.parent, " value: ", from.getPayload);
         }
@@ -286,7 +286,7 @@ class RTree(Node, bool isWritable)
         {
             writeln("Node: ", from, " parent: ", from.parent, " _children: ", from._children);
 
-            foreach( i, c; from._children )
+            foreach(c; from._children)
             {
                 showBranch(c, depth+1);
             }
