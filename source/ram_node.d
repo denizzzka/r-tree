@@ -106,7 +106,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
     {
         debug assert(!isLeafNode);
 
-        if(_children.length)
+        if(_children_.length)
             _boundary = _boundary.expand(child._boundary);
         else
             _boundary = child._boundary;

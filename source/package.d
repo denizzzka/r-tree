@@ -292,7 +292,7 @@ class RTree(Node, bool isWritable)
         {
             writeln("Node: ", from, " parent: ", from.parent, " children: ", from.children);
 
-            foreach(c; from._children)
+            foreach(c; from.children)
             {
                 showBranch(c, depth+1);
             }
