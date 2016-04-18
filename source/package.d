@@ -123,7 +123,7 @@ class RTree(Node, bool isWritable)
             {
                 Box boundary = node.children.front.boundary;
 
-                foreach( c; node._children[1..$] )
+                foreach(c; node.children) // FIXME: first iteration duplicates box initialization values
                     boundary = boundary.expand(c.boundary);
 
                 node.boundary = boundary;
