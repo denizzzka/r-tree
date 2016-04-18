@@ -121,7 +121,7 @@ class RTree(Node, bool isWritable)
             }
             else // just recalculate boundary
             {
-                Box boundary = node._children[0].boundary;
+                Box boundary = node.children.front.boundary;
 
                 foreach( c; node._children[1..$] )
                     boundary = boundary.expand(c.boundary);
