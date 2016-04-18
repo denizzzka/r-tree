@@ -290,7 +290,7 @@ class RTree(Node, bool isWritable)
         }
         else
         {
-            writeln("Node: ", from, " parent: ", from.parent, " _children: ", from.children);
+            writeln("Node: ", from, " parent: ", from.parent, " children: ", from.children);
 
             foreach(c; from._children)
             {
@@ -301,7 +301,7 @@ class RTree(Node, bool isWritable)
 
     Box boundary()
     {
-        assert(root._children.length);
+        assert(root.children.length);
 
         return root.boundary;
     }
@@ -326,7 +326,7 @@ class RTree(Node, bool isWritable)
         {
             debug assert(!curr.isLeafNode);
 
-            foreach(i, c; curr._children)
+            foreach(c; curr.children)
                 if(c.boundary.isOverlappedBy(boundary))
                     res ~= search(boundary, c, currDepth+1);
         }
