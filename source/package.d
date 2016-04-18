@@ -100,7 +100,7 @@ class RTree(Node, bool isWritable)
         {
             debug(rtptrs) writeln("Correcting node ", node);
 
-            debug assert(node._children[0].isLeafNode == leafs_level);
+            debug assert(node.children.front.isLeafNode == leafs_level);
 
             if( (leafs_level && node._children.length > maxLeafChildren) // need split on leafs level?
                 || (!leafs_level && node._children.length > maxChildren) ) // need split of node?
