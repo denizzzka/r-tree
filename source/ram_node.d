@@ -11,7 +11,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 
     private union
     {
-        Children _children_;
+        Children _children;
         size_t payloadId;
     }
 
@@ -62,7 +62,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 
     ref Children children()
     {
-        return _children_;
+        return _children;
     }
 
     bool isRoot() const
@@ -111,12 +111,12 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
     {
         debug assert(!isLeafNode);
 
-        if(_children_.length)
+        if(_children.length)
             _boundary = _boundary.expand(child._boundary);
         else
             _boundary = child._boundary;
 
-        _children_.childrenStorage ~= child;
+        _children.childrenStorage ~= child;
         child._parent = &this;
     }
 }
