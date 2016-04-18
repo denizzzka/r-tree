@@ -11,18 +11,61 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 
     union
     {
-        RAMNode*[] _children_;
+        private Children _children_;
         size_t payloadId;
     }
 
     RAMNode*[] _children() // FIXME: temporary, remove it
     {
-        return _children_;
+        return _children_.childrenStorage;
     }
 
     void clearChildren()
     {
-        _children_.length = 0;
+        _children_.childrenStorage.length = 0;
+    }
+
+    struct Children
+    {
+        private RAMNode*[] childrenStorage; // TODO: replace by SList
+
+        void opAssign(Children c)
+        {
+            childrenStorage = c.childrenStorage.dup;
+        }
+
+        void clear()
+        {
+            childrenStorage.length = 0;
+        }
+
+        Range range()
+        {
+            return Range(&this);
+        }
+
+        alias range this;
+
+        struct Range
+        {
+            Children* childrenStruct;
+            private size_t curr;
+
+            private this(Children* c)
+            {
+                childrenStruct = c;
+            }
+
+            @property auto front(){ return childrenStruct.childrenStorage[curr]; }
+            @property void popFront(){ ++curr; }
+            @property size_t length(){ return childrenStruct.childrenStorage.length; }
+            @property bool empty(){ return curr >= childrenStruct.childrenStorage.length; }
+        }
+    }
+
+    ref Children children()
+    {
+        return _children_;
     }
 
     static size_t savePayload(Payload payload)
@@ -66,7 +109,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         else
             _boundary = child._boundary;
 
-        _children_ ~= child;
+        _children_.childrenStorage ~= child;
         child.parent = &this;
     }
 }
