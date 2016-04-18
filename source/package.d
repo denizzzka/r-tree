@@ -183,14 +183,17 @@ class RTree(Node, bool isWritable)
             }
 
             // division into two unique combinations of child nodes
+            auto range = n.children.range();
             for(size_t bit_num = 0; bit_num < _children_num; bit_num++)
             {
-                auto boundary = n._children[bit_num].boundary;
+                auto boundary = range.front.boundary;
 
                 if(bt(cast( size_t* ) &i, bit_num) == 0)
                     circumscribe(b1, boundary);
                 else
                     circumscribe(b2, boundary);
+
+                range.popFront;
             }
 
             // search for combination with minimum metrics

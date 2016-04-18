@@ -15,11 +15,6 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         size_t payloadId;
     }
 
-    RAMNode*[] _children() // FIXME: temporary, remove it
-    {
-        return _children_.childrenStorage;
-    }
-
     struct Children
     {
         private RAMNode*[] childrenStorage; // TODO: replace by SList
