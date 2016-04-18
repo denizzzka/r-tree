@@ -70,7 +70,7 @@ class RTree(Node, bool isWritable)
             debug assert( !curr.isLeafNode );
 
             // search for min area of child nodes
-            float minArea = float.infinity;
+            float minArea = float.infinity; // FIXME: why float?
             Node* min;
             foreach(c; curr.children)
             {
