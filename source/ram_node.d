@@ -56,6 +56,13 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
             @property size_t length(){ return childrenStruct.childrenStorage.length; }
             @property bool empty(){ return curr >= childrenStruct.childrenStorage.length; }
         }
+
+        debug string toString() const
+        {
+            import std.conv;
+
+            return childrenStorage.to!string;
+        }
     }
 
     ref Children children()
