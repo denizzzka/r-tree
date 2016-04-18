@@ -1,11 +1,14 @@
 module rtree;
 
 import rtree.box_extensions;
+import std.range.primitives: isInputRange;
 import std.traits;
 debug import std.stdio;
 
 class RTree(Node, bool isWritable)
 {
+    static assert(isInputRange!(typeof(Node.children)));
+
     private Node root;
     private ubyte depth = 0;
 

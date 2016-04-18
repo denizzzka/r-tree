@@ -60,7 +60,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         }
     }
 
-    ref Children children()
+    ref Children children() @property
     {
         return _children;
     }
