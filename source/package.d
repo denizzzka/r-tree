@@ -269,13 +269,13 @@ class RTree(Node, bool isWritable)
         if(currDepth == depth)
         {
             leafBlocksNum++;
-            leafsNum += curr._children.length;
+            leafsNum += curr.children.length;
         }
         else
         {
-            nodesNum += curr._children.length;
+            nodesNum += curr.children.length;
 
-            foreach(c; curr._children)
+            foreach(c; curr.children)
                 statistic( nodesNum, leafsNum, leafBlocksNum, c, currDepth+1 );
         }
     }
