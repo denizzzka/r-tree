@@ -2,9 +2,9 @@ module rtree.ram_node;
 
 struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 {
-    RAMNode* parent;
+    private RAMNode* _parent;
     private Box _boundary;
-    static Payload[] _payloads; // TODO: replace by SList
+    private static Payload[] _payloads; // TODO: replace by SList
     debug package bool isLeafNode = false;
 
     this(this){}
@@ -38,7 +38,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 
         struct Range
         {
-            Children* childrenStruct;
+            private Children* childrenStruct;
             private size_t curr;
 
             private this(Children* c)
@@ -63,6 +63,16 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
     ref Children children()
     {
         return _children_;
+    }
+
+    bool isRoot() const
+    {
+        return _parent is null;
+    }
+
+    RAMNode* parent()
+    {
+        return _parent;
     }
 
     static size_t savePayload(Payload payload)
@@ -107,6 +117,6 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
             _boundary = child._boundary;
 
         _children_.childrenStorage ~= child;
-        child.parent = &this;
+        child._parent = &this;
     }
 }

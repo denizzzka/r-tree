@@ -105,7 +105,7 @@ class RTree(Node, bool isWritable)
             if( (leafs_level && node.children.length > maxLeafChildren) // need split on leafs level?
                 || (!leafs_level && node.children.length > maxChildren) ) // need split of node?
             {
-                if(node.parent is null) // for root split it is need a new root node
+                if(node.isRoot) // for root split it is need a new root node
                 {
                     node = new Node;
                     *node = root;
