@@ -20,7 +20,7 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         return _children_;
     }
 
-    void clearChidren()
+    void clearChildren()
     {
         _children_.length = 0;
     }
