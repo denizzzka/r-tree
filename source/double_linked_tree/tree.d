@@ -1,10 +1,5 @@
 module double_tree.tree;
 
-//~ class DoubleLinkedTree(Node)
-//~ {
-	//~ private Node root;
-//~ }
-
 unittest
 {
 	import double_tree.ram_node;
@@ -12,5 +7,9 @@ unittest
     RAMNode!(ubyte) root;
 
     auto n = root.addNode;
-    n.addPayloadNode(123);
+    auto leaf = n.addPayloadNode(123);
+
+    assert(leaf.payload == 123);
+    assert(n == leaf.parent);
+    assert(&root == n.parent);
 }

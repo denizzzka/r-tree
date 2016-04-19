@@ -65,13 +65,15 @@ struct RAMNode(Payload)
         return __parent;
     }
 
-    void addPayloadNode(Payload payload)
+    RAMNode* addPayloadNode(Payload payload)
     {
         debug assert(!isLeafNode);
 
         auto n = addNode();
         n.isLeafNode = true;
         n.payload = payload;
+
+        return n;
     }
 
     RAMNode* addNode()
