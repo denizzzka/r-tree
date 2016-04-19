@@ -45,12 +45,15 @@ unittest
 
 		recursive(&writable);
 
-		debug(double_tree) writable.showBranch(&writable);
+		debug(double_tree)
+		{
+			writable.showBranch(&writable);
 
-		size_t nodes, deadEnds;
-		writable.statistic(nodes, deadEnds);
+			size_t nodes, deadEnds;
+			writable.statistic(nodes, deadEnds);
 
-		assert(nodes == 40);
-		assert(deadEnds == 27);
+			assert(nodes == 40);
+			assert(deadEnds == 27);
+		}
 	}
 }
