@@ -52,13 +52,5 @@ unittest
 
 		assert(nodes == 40);
 		assert(deadEnds == 27);
-
-		//~ assert(writable.root.boundary == BBox(1, 1, 4, 4));
-
-		//~ auto search1 = BBox(2, 2, 3, 3);
-		//~ auto search2 = BBox(2.1, 2.1, 2.9, 2.9);
-
-		//~ assert(writable.search( search1 ).length == 9);
-		//~ assert(writable.search( search2 ).length == 1);
 	}
 }
