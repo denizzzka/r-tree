@@ -235,7 +235,7 @@ class RTree(Node, bool isWritable)
 
         debug(rtptrs)
         {
-            writeln("Split node ", n, " ", n.children, ", new ", newNode, " ", newNode.children);
+            writeln("Split node ", n, " isLeafNode=", n.isLeafNode," ", n.children, ", new ", newNode, " isLeafNode=", newNode.isLeafNode, " ", newNode.children);
             stdout.flush();
         }
 
