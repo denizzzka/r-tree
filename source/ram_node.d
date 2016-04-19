@@ -4,20 +4,14 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 {
     private RAMNode* _parent;
     private Box _boundary;
-    private static Payload[] _payloads; // TODO: replace by SList
     debug package bool isLeafNode = false;
-
-    version(unittest) package static size_t payloadsLength()
-    {
-        return _payloads.length;
-    }
 
     this(this){}
 
     private union
     {
         Children _children;
-        size_t payloadId;
+        Payload payload;
     }
 
     struct Children
@@ -80,25 +74,18 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         return _parent;
     }
 
-    static size_t savePayload(Payload payload)
-    {
-        _payloads ~= payload;
-
-        return _payloads.length - 1; // TODO: replace by range
-    }
-
-    Payload* getPayload() const
+    ref Payload getPayload()
     {
         debug assert(isLeafNode);
 
-        return &_payloads[payloadId];
+        return payload;
     }
 
     /// Leaf node
-    this(in Box boundary, size_t payloadId)
+    this(in Box boundary, Payload payload)
     {
         this._boundary = boundary;
-        this.payloadId = payloadId;
+        this.payload = payload;
         isLeafNode = true;
     }
 
@@ -124,43 +111,4 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         _children.childrenStorage ~= child;
         child._parent = &this;
     }
-}
-
-unittest
-{
-    import rtree;
-    import gfm.math.box;
-
-    alias TestType = float;
-    alias BBox = Box!(TestType, 2);
-
-    alias Node = RAMNode!(BBox, TestType);
-
-    auto writable = new RTree!(Node, true)(2, 2);
-
-    for(TestType y = 1; y < 4; y++)
-    {
-        for(TestType x = 1; x < 4; x++)
-        {
-            auto boundary = BBox(x, y, x+1, y+1);
-            writable.addObject(boundary, cast(ubyte) (10 * x + y) /*payload*/);
-        }
-    }
-
-    debug(rtree) writable.showBranch(&writable.root);
-
-    size_t nodes, leafs, leafBlocksNum;
-    writable.statistic(nodes, leafs, leafBlocksNum);
-
-    assert(leafs == 9);
-    // assert(nodes == 13);
-    assert(leafBlocksNum == 6);
-
-    assert(writable.root.boundary == BBox(1, 1, 4, 4));
-
-    auto search1 = BBox(2, 2, 3, 3);
-    auto search2 = BBox(2.1, 2.1, 2.9, 2.9);
-
-    assert(writable.search( search1 ).length == 9);
-    assert(writable.search( search2 ).length == 1);
 }

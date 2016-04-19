@@ -2,7 +2,7 @@ module rtree;
 
 import rtree.box_extensions;
 import std.range.primitives: isInputRange;
-import std.traits;
+import std.traits: ReturnType;
 debug import std.stdio;
 
 class RTree(Node, bool isWritable)
@@ -28,31 +28,16 @@ class RTree(Node, bool isWritable)
     }
 
     alias Box = ReturnType!(Node.boundary);
-    alias Payload = PointerTarget!(ReturnType!(Node.getPayload));
+    alias Payload = ReturnType!(Node.getPayload);
 
     static if(isWritable)
-    auto addObject(in Box boundary, Payload payload) @system
+    void addObject(in Box boundary, Payload payload)
     {
-        auto payloadId = Node.savePayload(payload);
-        Node* leaf = new Node(boundary, payloadId);
-
+        Node* leaf = new Node(boundary, payload);
         addLeafNode(leaf);
-
-        return payloadId;
     }
 
-    /// Useful for external payload storage
-    static if(isWritable)
-    PayloadPtr* addObject(PayloadPtr)(in Box boundary, PayloadPtr* payloadPtr) @system
-    {
-        Node* leaf = new Node(boundary, payloadPtr);
-
-        addLeafNode(leaf);
-
-        return payload;
-    }
-
-    private auto addLeafNode(Node* leaf) @system
+    private auto addLeafNode(Node* leaf)
     {
         debug assert(leaf.isLeafNode);
 
@@ -64,7 +49,7 @@ class RTree(Node, bool isWritable)
         correct(place); // correction of the tree
     }
 
-    private Node* selectLeafPlace(in Box newItemBoundary) @system
+    private Node* selectLeafPlace(in Box newItemBoundary)
     {
         Node* curr = &root;
 
@@ -311,15 +296,15 @@ class RTree(Node, bool isWritable)
         return root.boundary;
     }
 
-    Payload*[] search(in Box boundary)
+    Payload[] search(in Box boundary)
     {
         Node* r = &root;
         return search(boundary, r);
     }
 
-    private Payload*[] search(in Box boundary, Node* curr, size_t currDepth = 0)
+    private Payload[] search(in Box boundary, Node* curr, size_t currDepth = 0)
     {
-        Payload*[] res;
+        Payload[] res;
 
         if( currDepth > depth )
         {
@@ -400,7 +385,6 @@ unittest
     size_t nodes, leafs, leafBlocksNum;
     writable.statistic(nodes, leafs, leafBlocksNum);
 
-    assert(Node.payloadsLength == 9);
     assert(leafs == 9);
     // assert(nodes == 13);
     assert(leafBlocksNum == 6);
