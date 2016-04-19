@@ -108,8 +108,8 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
         else
             _boundary = child._boundary;
 
-        _children.childrenStorage ~= child;
         child._parent = &this;
+        _children.childrenStorage ~= child;
     }
 }
 
