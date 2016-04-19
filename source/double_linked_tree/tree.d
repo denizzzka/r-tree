@@ -47,12 +47,11 @@ unittest
 
 		debug(double_tree) writable.showBranch(&writable);
 
-		size_t nodes, leafs, leafBlocksNum;
-		//~ writable.statistic(nodes, leafs, leafBlocksNum);
+		size_t nodes, deadEnds;
+		writable.statistic(nodes, deadEnds);
 
-		//~ assert(leafs == 9);
-		//~ // assert(nodes == 13);
-		//~ assert(leafBlocksNum == 6);
+		assert(nodes == 40);
+		assert(deadEnds == 27);
 
 		//~ assert(writable.root.boundary == BBox(1, 1, 4, 4));
 

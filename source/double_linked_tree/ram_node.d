@@ -6,7 +6,7 @@ debug import std.stdio;
 struct RAMNode(Payload)
 {
     private RAMNode* __parent;
-    debug package bool isPayloadNode = false;
+    debug package bool isDeadEndNode = false;
 
     private union
     {
@@ -16,7 +16,7 @@ struct RAMNode(Payload)
 
     ref Payload payload() @property
     {
-        debug assert(isPayloadNode);
+        debug assert(isDeadEndNode);
 
         return __payload;
     }
@@ -68,10 +68,10 @@ struct RAMNode(Payload)
 
     RAMNode* addPayloadNode(Payload payload) @property
     {
-        debug assert(!isPayloadNode);
+        debug assert(!isDeadEndNode);
 
         auto n = addNode();
-        n.isPayloadNode = true;
+        n.isDeadEndNode = true;
         n.payload = payload;
 
         return n;
@@ -79,7 +79,7 @@ struct RAMNode(Payload)
 
     RAMNode* addNode() @property
     {
-        debug assert(!isPayloadNode);
+        debug assert(!isDeadEndNode);
 
         RAMNode* child = new RAMNode;
         child.__parent = &this;
@@ -92,7 +92,7 @@ struct RAMNode(Payload)
     {
         write("Depth=", depth, " Node=", from, " parent=", from.parent, " ");
 
-        if(from.isPayloadNode)
+        if(from.isDeadEndNode)
         {
             writeln("payload=", from.payload);
         }
@@ -107,25 +107,34 @@ struct RAMNode(Payload)
         }
     }
 
-    //~ void statistic(
-        //~ ref size_t nodesNum,
-        //~ ref size_t leafsNum,
-        //~ ref size_t leafBlocksNum,
-        //~ Node* curr,
-        //~ size_t currDepth = 0
-    //~ ) pure
-    //~ {
-        //~ if(currDepth == depth)
-        //~ {
-            //~ leafBlocksNum++;
-            //~ leafsNum += curr.children.length;
-        //~ }
-        //~ else
-        //~ {
-            //~ nodesNum += curr.children.length;
+    debug void statistic(
+        ref size_t nodesNum,
+        ref size_t deadEndsNum,
+        size_t currDepth = 0
+    ) pure
+    {
+        RAMNode.statistic(&this, nodesNum, deadEndsNum, currDepth);
+    }
 
-            //~ foreach(c; curr.children)
-                //~ statistic( nodesNum, leafsNum, leafBlocksNum, c, currDepth+1 );
-        //~ }
-    //~ }
+    debug static void statistic(
+        RAMNode* curr,
+        ref size_t nodesNum,
+        ref size_t deadEndsNum,
+        size_t currDepth = 0
+    ) pure
+    {
+        nodesNum++;
+
+        if(curr.isDeadEndNode)
+        {
+            deadEndsNum++;
+        }
+        else
+        {
+            foreach(ref c; curr.children)
+            {
+                statistic(c, nodesNum, deadEndsNum, currDepth + 1);
+            }
+        }
+    }
 }
