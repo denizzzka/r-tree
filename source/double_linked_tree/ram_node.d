@@ -3,7 +3,7 @@ module double_tree.ram_node;
 import std.container: SList;
 debug import std.stdio;
 
-struct RAMTreeNode(NodeLeafPayload, LeafPayload)
+struct RAMTreeNode(NodePayload, LeafPayload)
 {
     private RAMTreeNode* __parent;
     debug package bool isDeadEndNode = false;
@@ -11,14 +11,14 @@ struct RAMTreeNode(NodeLeafPayload, LeafPayload)
     private union
     {
         Children __children;
-        LeafPayload __payload;
+        LeafPayload __leafPayload;
     }
 
     ref LeafPayload payload() @property
     {
         debug assert(isDeadEndNode);
 
-        return __payload;
+        return __leafPayload;
     }
 
     ref Children children() @property
