@@ -1,6 +1,16 @@
 module double_tree.tree;
 
-class DoubleLinkedTree(Node)
+//~ class DoubleLinkedTree(Node)
+//~ {
+	//~ private Node root;
+//~ }
+
+unittest
 {
-	private Node root;
+	import double_tree.ram_node;
+
+    RAMNode!(ubyte) root;
+
+    auto n = root.addNode;
+    n.addPayloadNode(123);
 }

@@ -2,14 +2,22 @@ module double_tree.ram_node;
 
 import std.container: SList;
 
-struct RAMNode(Payload, bool isWritable) //TODO: rename to havingLength?
+struct RAMNode(Payload)
 {
     private RAMNode* __parent;
+    debug package bool isLeafNode = false;
 
     private union
     {
         Children __children;
-        Payload payload;
+        Payload __payload;
+    }
+
+    ref Payload payload() @property
+    {
+        debug assert(isLeafNode);
+
+        return __payload;
     }
 
     ref Children children() @property
@@ -20,19 +28,18 @@ struct RAMNode(Payload, bool isWritable) //TODO: rename to havingLength?
     struct Children
     {
         private SList!(RAMNode*) childrenStorage;
-        static if(isWritable) private size_t length;
 
         void clear()
         {
             childrenStorage.clear;
         }
 
-        Range range()
+        Range opSlice()
         {
             return Range(&this);
         }
 
-        alias range this;
+        alias opSlice this;
 
         struct Range
         {
@@ -58,14 +65,23 @@ struct RAMNode(Payload, bool isWritable) //TODO: rename to havingLength?
         return __parent;
     }
 
-    void assignChild(RAMNode* child)
+    void addPayloadNode(Payload payload)
     {
+        debug assert(!isLeafNode);
+
+        auto n = addNode();
+        n.isLeafNode = true;
+        n.payload = payload;
+    }
+
+    RAMNode* addNode()
+    {
+        debug assert(!isLeafNode);
+
+        RAMNode* child = new RAMNode;
         child.__parent = &this;
         __children.childrenStorage.insert(child);
-    }
-}
 
-unittest
-{
-    RAMNode!(ubyte, true) root;
+        return __children.childrenStorage.front();
+    }
 }
