@@ -6,10 +6,10 @@ unittest
 
     {
 		// simple test
-		RAMTreeNode!ubyte root;
+		RAMTreeNode!(float, ubyte) root;
 
 		auto n = root.addNode;
-		auto leaf = n.addPayloadNode(123);
+		auto leaf = n.addLeafNode(123);
 
 		assert(leaf.payload == 123);
 		assert(n == leaf.parent);
@@ -20,7 +20,7 @@ unittest
 		// complex test
 		alias TestType = float;
 
-		alias Node = RAMTreeNode!TestType;
+		alias Node = RAMTreeNode!(short, TestType);
 		Node writable;
 
 		size_t counter;
@@ -37,7 +37,7 @@ unittest
 				}
 				else
 				{
-					node.addPayloadNode(counter + currDepth/10);
+					node.addLeafNode(counter + currDepth/10);
 					counter++;
 				}
 			}
