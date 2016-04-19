@@ -6,6 +6,7 @@ debug import std.stdio;
 struct RAMTreeNode(NodePayload, LeafPayload)
 {
     private RAMTreeNode* __parent;
+    NodePayload nodePayload;
     debug package bool isDeadEndNode = false;
 
     private union
@@ -66,23 +67,24 @@ struct RAMTreeNode(NodePayload, LeafPayload)
         return __parent;
     }
 
-    RAMTreeNode* addLeafNode(LeafPayload payload) @property
+    RAMTreeNode* addLeafNode(NodePayload nodePayload, LeafPayload leafPayload) @property
     {
         debug assert(!isDeadEndNode);
 
-        auto n = addNode();
+        auto n = addNode(nodePayload);
         n.isDeadEndNode = true;
-        n.__leafPayload = payload;
+        n.__leafPayload = leafPayload;
 
         return n;
     }
 
-    RAMTreeNode* addNode() @property
+    RAMTreeNode* addNode(NodePayload nodePayload) @property
     {
         debug assert(!isDeadEndNode);
 
         RAMTreeNode* child = new RAMTreeNode;
         child.__parent = &this;
+        child.nodePayload = nodePayload;
         __children.childrenStorage.insert(child);
 
         return __children.childrenStorage.front();

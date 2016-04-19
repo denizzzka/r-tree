@@ -8,10 +8,12 @@ unittest
 		// simple test
 		RAMTreeNode!(float, ubyte) root;
 
-		auto n = root.addNode;
-		auto leaf = n.addLeafNode(123);
+		auto n = root.addNode(1);
+		auto leaf = n.addLeafNode(2, 123);
 
+		assert(leaf.nodePayload == 2);
 		assert(leaf.leafPayload == 123);
+		assert(n.nodePayload == 1);
 		assert(n == leaf.parent);
 		assert(&root == n.parent);
 	}
@@ -32,12 +34,12 @@ unittest
 			{
 				if(currDepth < 2)
 				{
-					auto newNode = node.addNode;
+					auto newNode = node.addNode(1);
 					recursive(newNode, currDepth + 1);
 				}
 				else
 				{
-					node.addLeafNode(counter + currDepth/10);
+					node.addLeafNode(2, counter + currDepth/10);
 					counter++;
 				}
 			}
