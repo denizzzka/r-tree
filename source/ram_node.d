@@ -18,11 +18,6 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
     {
         private RAMNode*[] childrenStorage; // TODO: replace by SList
 
-        void opAssign(Children c)
-        {
-            childrenStorage = c.childrenStorage.dup;
-        }
-
         void clear()
         {
             childrenStorage.length = 0;
