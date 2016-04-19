@@ -86,6 +86,8 @@ struct RAMNode(Box, Payload) // TODO: add ability to store ptrs
 
     Box boundary() const
     {
+        assert(_children.childrenStorage.length > 0);
+
         return _boundary;
     }
 
