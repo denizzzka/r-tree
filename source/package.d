@@ -86,7 +86,11 @@ class RTree(Node, bool isWritable)
 
         while(node)
         {
-            debug(rtptrs) writeln("Correcting node ", node);
+            debug(rtptrs)
+            {
+                writeln("Correcting node ", node, " children.front.isLeafNode=", node.children.front.isLeafNode, " leafs_level=", leafs_level);
+                stdout.flush();
+            }
 
             debug assert(node.children.front.isLeafNode == leafs_level);
 
@@ -235,7 +239,7 @@ class RTree(Node, bool isWritable)
 
         debug(rtptrs)
         {
-            writeln("Split node ", n, " isLeafNode=", n.isLeafNode," ", n.children, ", new ", newNode, " isLeafNode=", newNode.isLeafNode, " ", newNode.children);
+            writeln("Split node ", n, " isLeafNode=", n.isLeafNode," ", n.children, ", new ", newNode, " newNode.isLeafNode=", newNode.isLeafNode, " ", newNode.children);
             stdout.flush();
         }
 
