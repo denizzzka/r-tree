@@ -14,7 +14,7 @@ struct RAMTreeNode(NodePayload, LeafPayload)
         LeafPayload __leafPayload;
     }
 
-    ref LeafPayload payload() @property
+    ref LeafPayload leafPayload() @property
     {
         debug assert(isDeadEndNode);
 
@@ -72,7 +72,7 @@ struct RAMTreeNode(NodePayload, LeafPayload)
 
         auto n = addNode();
         n.isDeadEndNode = true;
-        n.payload = payload;
+        n.__leafPayload = payload;
 
         return n;
     }
@@ -94,7 +94,7 @@ struct RAMTreeNode(NodePayload, LeafPayload)
 
         if(from.isDeadEndNode)
         {
-            writeln("payload=", from.payload);
+            writeln("payload=", from.leafPayload);
         }
         else
         {

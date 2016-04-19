@@ -11,7 +11,7 @@ unittest
 		auto n = root.addNode;
 		auto leaf = n.addLeafNode(123);
 
-		assert(leaf.payload == 123);
+		assert(leaf.leafPayload == 123);
 		assert(n == leaf.parent);
 		assert(&root == n.parent);
 	}
