@@ -4,8 +4,7 @@ import std.container: SList;
 
 struct RAMNode(Payload, bool isWritable) //TODO: rename to havingLength?
 {
-    private RAMNode* _parent;
-    debug package bool isLeafNode = false;
+    private RAMNode* __parent;
 
     private union
     {
@@ -56,7 +55,13 @@ struct RAMNode(Payload, bool isWritable) //TODO: rename to havingLength?
 
     RAMNode* parent()
     {
-        return _parent;
+        return __parent;
+    }
+
+    void assignChild(RAMNode* child)
+    {
+        child.__parent = &this;
+        __children.childrenStorage.insert(child);
     }
 }
 
