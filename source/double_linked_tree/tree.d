@@ -6,7 +6,7 @@ unittest
 
     {
 		// simple test
-		RAMNode!ubyte root;
+		RAMTreeNode!ubyte root;
 
 		auto n = root.addNode;
 		auto leaf = n.addPayloadNode(123);
@@ -20,7 +20,7 @@ unittest
 		// complex test
 		alias TestType = float;
 
-		alias Node = RAMNode!TestType;
+		alias Node = RAMTreeNode!TestType;
 		Node writable;
 
 		size_t counter;

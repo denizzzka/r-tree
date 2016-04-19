@@ -1,5 +1,6 @@
 module rtree;
 
+import double_tree.ram_node;
 import rtree.box_extensions;
 import std.range.primitives: isInputRange;
 import std.traits: ReturnType;

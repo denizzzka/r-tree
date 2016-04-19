@@ -3,9 +3,9 @@ module double_tree.ram_node;
 import std.container: SList;
 debug import std.stdio;
 
-struct RAMNode(Payload)
+struct RAMTreeNode(Payload)
 {
-    private RAMNode* __parent;
+    private RAMTreeNode* __parent;
     debug package bool isDeadEndNode = false;
 
     private union
@@ -28,7 +28,7 @@ struct RAMNode(Payload)
 
     struct Children
     {
-        private SList!(RAMNode*) childrenStorage;
+        private SList!(RAMTreeNode*) childrenStorage;
 
         void clear()
         {
@@ -61,12 +61,12 @@ struct RAMNode(Payload)
         }
     }
 
-    RAMNode* parent()
+    RAMTreeNode* parent()
     {
         return __parent;
     }
 
-    RAMNode* addPayloadNode(Payload payload) @property
+    RAMTreeNode* addPayloadNode(Payload payload) @property
     {
         debug assert(!isDeadEndNode);
 
@@ -77,18 +77,18 @@ struct RAMNode(Payload)
         return n;
     }
 
-    RAMNode* addNode() @property
+    RAMTreeNode* addNode() @property
     {
         debug assert(!isDeadEndNode);
 
-        RAMNode* child = new RAMNode;
+        RAMTreeNode* child = new RAMTreeNode;
         child.__parent = &this;
         __children.childrenStorage.insert(child);
 
         return __children.childrenStorage.front();
     }
 
-    debug static void showBranch(RAMNode* from, size_t depth = 0)
+    debug static void showBranch(RAMTreeNode* from, size_t depth = 0)
     {
         write("Depth=", depth, " Node=", from, " parent=", from.parent, " ");
 
@@ -113,11 +113,11 @@ struct RAMNode(Payload)
         size_t currDepth = 0
     ) pure
     {
-        RAMNode.statistic(&this, nodesNum, deadEndsNum, currDepth);
+        RAMTreeNode.statistic(&this, nodesNum, deadEndsNum, currDepth);
     }
 
     debug static void statistic(
-        RAMNode* curr,
+        RAMTreeNode* curr,
         ref size_t nodesNum,
         ref size_t deadEndsNum,
         size_t currDepth = 0
